@@ -8,7 +8,7 @@ BUILD_DIR=$1
 CACHE_DIR=$2
 ENV_DIR=$3
 
-if [[ -z "$SL_TOKEN" ]]; then
+if [[ -z $SL_TOKEN ]]; then
   echo "Error: environment variable SL_TOKEN is required and was not found"
   exit 1
 fi
@@ -21,6 +21,7 @@ echo "ENV_DIR=${ENV_DIR}"
 
 echo "       Installing Sealights agent"
 env
+echo "Creating $BUILD_DIR/sealights"
 mkdir -p $BUILD_DIR/sealights
 decode_base64_url() {
   local len=$((${#1} % 4))
@@ -34,22 +35,25 @@ decode_base64_url() {
 decode_jwt_server(){
    decode_base64_url $(echo -n $1 | cut -d "." -f 2) | jq '."x-sl-server"' -r
 }
-if [[ ! -f $BUILD_DIR/sealights/sl-test-listener.jar ]]
+if [[ ! -f $BUILD_DIR/sealights/sl-test-listener.jar ]]; then
 	#TODO: Run this only if $BUILD_DIR/sealights/sl-test-listener.jar does not exist
 
 	SL_AGENT_DOWNLOAD_URL=`decode_jwt_server $SL_TOKEN`/v2/agents/sealights-java/recommended/download
 	echo "       Downloading sealights agent from $SL_AGENT_DOWNLOAD_URL to $BUILD_DIR/sealights/agent.zip"
 	curl -L $SL_AGENT_DOWNLOAD_URL -H "Authorization: Bearer $SL_TOKEN" --output "$BUILD_DIR/sealights/agent.zip"
 	cd $BUILD_DIR/sealights
-	set -e
+	set +e
 	unzip $BUILD_DIR/sealights/agent.zip
+	AGENT_UNZIP_EXIT_CODE=$?
+	set -e
 
-	if [[ ! -f $BUILD_DIR/sealights/sl-test-listener.jar ]]
+	if [[ AGENT_UNZIP_EXIT_CODE == 0 || ! -f $BUILD_DIR/sealights/sl-test-listener.jar ]]; then
 		echo Error unpacking zip file
 		cat $BUILD_DIR/sealights/agent.zip
 		exit 1
 	fi
-
-	cat $BUILD_DIR/sealights/sealights-java-version.txt
+	echo "Downloaded agent version `cat $BUILD_DIR/sealights/sealights-java-version.txt`"
 fi
+
 export JAVA_TOOL_OPTIONS="$JAVA_TOOL_OPTIONS -javaagent:$BUILD_DIR/sealights/sl-test-listener.jar -Dprop1=val1 -Dsl.buildSessionId=$SL_BUILD_SESSION_ID"
+echo Exported JAVA_TOOL_OPTIONS env variable
