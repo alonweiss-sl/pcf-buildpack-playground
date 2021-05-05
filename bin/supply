@@ -8,12 +8,32 @@ BUILD_DIR=$1
 CACHE_DIR=$2
 ENV_DIR=$3
 
-echo "       Installing Sealights agent"
 
-#mkdir -p $BUILD_DIR/sealights
-#echo "BIN_DIR=${BIN_DIR}"
-#echo "ROOT_DIR=${ROOT_DIR}"
-#echo "BUILD_DIR=${BUILD_DIR}"
-#echo "CACHE_DIR=${CACHE_DIR}"
-#echo "ENV_DIR=${ENV_DIR}"
-#env
+echo "BIN_DIR=${BIN_DIR}"
+echo "ROOT_DIR=${ROOT_DIR}"
+echo "BUILD_DIR=${BUILD_DIR}"
+echo "CACHE_DIR=${CACHE_DIR}"
+echo "ENV_DIR=${ENV_DIR}"
+
+echo "       Installing Sealights agent"
+env
+mkdir -p $BUILD_DIR/sealights
+decode_base64_url() {
+  local len=$((${#1} % 4))
+  local result="$1"
+  if [ $len -eq 2 ]; then result="$1"'=='
+  elif [ $len -eq 3 ]; then result="$1"'=' 
+  fi
+  echo "$result" | tr '_-' '/+' | openssl enc -d -base64
+}
+
+decode_jwt_server(){
+   decode_base64_url $(echo -n $1 | cut -d "." -f 2) | jq '."x-sl-server"' -r
+}
+
+SL_AGENT_DOWNLOAD_URL=`decode_jwt_server $SLTOKEN`/v2/agents/sealights-java/recommended/download
+echo "       Downloading sealights agent from $SL_AGENT_DOWNLOAD_URL to $BUILD_DIR"
+curl -L $SL_AGENT_DOWNLOAD_URL -H "Authorization: Bearer $SL_TOKEN" --output $BUILD_DIR/agent.zip
+echo "       Downloaded sealights agent"
+
+
