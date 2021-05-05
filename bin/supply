@@ -10,10 +10,10 @@ ENV_DIR=$3
 
 echo "       Installing Sealights agent"
 
-mkdir -p $BUILD_DIR/sealights
-echo "BIN_DIR=${BIN_DIR}"
-echo "ROOT_DIR=${ROOT_DIR}"
-echo "BUILD_DIR=${BUILD_DIR}"
-echo "CACHE_DIR=${CACHE_DIR}"
-echo "ENV_DIR=${ENV_DIR}"
-env
+#mkdir -p $BUILD_DIR/sealights
+#echo "BIN_DIR=${BIN_DIR}"
+#echo "ROOT_DIR=${ROOT_DIR}"
+#echo "BUILD_DIR=${BUILD_DIR}"
+#echo "CACHE_DIR=${CACHE_DIR}"
+#echo "ENV_DIR=${ENV_DIR}"
+#env
