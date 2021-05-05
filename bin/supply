@@ -31,7 +31,7 @@ decode_jwt_server(){
    decode_base64_url $(echo -n $1 | cut -d "." -f 2) | jq '."x-sl-server"' -r
 }
 
-SL_AGENT_DOWNLOAD_URL=`decode_jwt_server $SLTOKEN`/v2/agents/sealights-java/recommended/download
+SL_AGENT_DOWNLOAD_URL=`decode_jwt_server $SL_TOKEN`/v2/agents/sealights-java/recommended/download
 echo "       Downloading sealights agent from $SL_AGENT_DOWNLOAD_URL to $BUILD_DIR"
 curl -L $SL_AGENT_DOWNLOAD_URL -H "Authorization: Bearer $SL_TOKEN" --output $BUILD_DIR/agent.zip
 echo "       Downloaded sealights agent"
