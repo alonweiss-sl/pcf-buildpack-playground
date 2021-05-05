@@ -8,6 +8,10 @@ BUILD_DIR=$1
 CACHE_DIR=$2
 ENV_DIR=$3
 
+if [[ -z "$SL_TOKEN" ]]; then
+  echo "Error: environment variable SL_TOKEN is required and was not found"
+  exit 1
+fi
 
 echo "BIN_DIR=${BIN_DIR}"
 echo "ROOT_DIR=${ROOT_DIR}"
@@ -32,8 +36,12 @@ decode_jwt_server(){
 }
 
 SL_AGENT_DOWNLOAD_URL=`decode_jwt_server $SL_TOKEN`/v2/agents/sealights-java/recommended/download
-echo "       Downloading sealights agent from $SL_AGENT_DOWNLOAD_URL to $BUILD_DIR"
-curl -L $SL_AGENT_DOWNLOAD_URL -H "Authorization: Bearer $SL_TOKEN" --output $BUILD_DIR/agent.zip
-echo "       Downloaded sealights agent"
+echo "       Downloading sealights agent from $SL_AGENT_DOWNLOAD_URL to $BUILD_DIR/sealights/agent.zip"
+curl -L $SL_AGENT_DOWNLOAD_URL -H "Authorization: Bearer $SL_TOKEN" --output $BUILD_DIR/sealights/agent.zip
+
+cd $BUILD_DIR/sealights
+unzip $BUILD_DIR/sealights/agent.zip
+set BLAH="-javaagent:$BUILD_DIR/sealights/sl-test-listener.jar -Dprop1=val1 -Dsl.buildSessionId=$SL_BUILD_SESSION_ID"
+#echo "       Downloaded sealights agent"
 
 
