@@ -38,9 +38,8 @@ decode_jwt_server(){
 SL_AGENT_DOWNLOAD_URL=`decode_jwt_server $SL_TOKEN`/v2/agents/sealights-java/recommended/download
 echo "       Downloading sealights agent from $SL_AGENT_DOWNLOAD_URL to $BUILD_DIR/sealights/agent.zip"
 curl -L $SL_AGENT_DOWNLOAD_URL -H "Authorization: Bearer $SL_TOKEN" --output "$BUILD_DIR/sealights/agent.zip"
-cat "$BUILD_DIR/sealights/agent.zip"
-
 cd $BUILD_DIR/sealights
+set -e
 unzip $BUILD_DIR/sealights/agent.zip
 set BLAH="-javaagent:$BUILD_DIR/sealights/sl-test-listener.jar -Dprop1=val1 -Dsl.buildSessionId=$SL_BUILD_SESSION_ID"
 #echo "       Downloaded sealights agent"
